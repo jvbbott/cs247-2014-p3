@@ -1,0 +1,127 @@
+body {
+  margin: 10px;
+  font: 15px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+a {
+  color: #00B7FF;
+}
+div#send-buttons {
+  position: absolute;
+  right: 0px;
+  bottom: 5px;
+  /*height: 50px;*/
+}
+button.send-button {
+  height: 45px;
+  border-radius: 10px 10px 10px 10px;
+}
+#webcam_stream {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 0;
+}
+#webcam_stream video {
+  border: 2px solid #dcc;
+  margin-left: 110px;
+}
+#second_counter {
+  position: fixed;
+  top: 60px;
+  right: 130px;
+  color: white;
+  z-index: 999;
+}
+#conversation {
+  padding: 10px 10px 80px;
+  overflow-y: scroll;
+  height: 100%;
+}
+#submission {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  right: 0;
+  border-top: 2px solid #dcc;
+  background: #fff;
+}
+#submission input {
+  border: none;
+  font-size: 15px;
+  padding: 15px;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+#waiting {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: #292929;
+  color: white;
+  text-align: center;
+  padding: 50px 0;
+}
+/* Weather Filters 
+
+var weatherFilterClasses = {
+    'Overcast' : 'high-grayscale',
+    'Mostly Cloudy': 'med-grayscale',
+    'Partly Cloudy' : 'low-grayscale',
+    'Clear' : 'hue-blue',
+    'Drizzle' : 'low-grayscale-blur',
+    'Rain' : 'high-grayscale-blur',
+    'Snow' : 'brightness-blur',
+    'Fog' : 'opaque'
+    };
+
+    var timeFilterClasses = {
+    'Morning' : 'hue-morning',
+    'Afternoon' : 'hue-afternoon',
+    'Sunrise' : 'hue-sunrise',
+    'Sunset' : 'hue-sunset',
+    'Night' : 'hue-night'
+    };
+*/
+.high-grayscale {
+  -webkit-filter: grayscale(1) blur(1px);
+}
+.med-grayscale {
+  -webkit-filter: grayscale(0.5);
+}
+.low-grayscale {
+  -webkit-filter: grayscale(0.1);
+}
+.hue-blue {
+  -webkit-filter: saturate(400%);
+}
+.low-grayscale-blur {
+  -webkit-filter: grayscale(0.1) blur(1px);
+}
+.high-grayscale-blur {
+  -webkit-filter: grayscale(1) blur(2px);
+}
+.brightness-blur {
+  -webkit-filter: brightness(1) blur(2px);
+}
+.opaque {
+  -webkit-filter: opacity(0.6);
+}
+/* Time Filters */
+.hue-morning {
+  -webkit-filter: sepia() saturate(300%) contrast(75%);
+}
+.hue-afternoon {
+  -webkit-filter: sepia() saturate(300%);
+}
+.hue-sunrise {
+  -webkit-filter: sepia() hue-rotate(-30deg) saturate(450%) contrast(100%);
+}
+.hue-sunset {
+  -webkit-filter: sepia() hue-rotate(215deg) saturate(450%) contrast(100%);
+}
+.hue-night {
+  -webkit-filter: invert() sepia() hue-rotate(250deg);
+}
