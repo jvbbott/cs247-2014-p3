@@ -19,8 +19,8 @@ a {
 
 #second_counter{
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 60px;
+  right: 90px;
   color: white;
   z-index: 999;
 }
@@ -60,3 +60,69 @@ a {
   text-align: center;
   padding: 50px 0;
 }
+
+/* Weather Filters 
+
+var weatherFilterClasses = {
+    'Overcast' : 'high-grayscale',
+    'Mostly Cloudy': 'med-grayscale',
+    'Partly Cloudy' : 'low-grayscale',
+    'Clear' : 'hue-blue',
+    'Drizzle' : 'low-grayscale-blur',
+    'Rain' : 'high-grayscale-blur',
+    'Snow' : 'brightness-blur',
+    'Fog' : 'opaque'
+    };
+
+    var timeFilterClasses = {
+    'Morning' : 'hue-morning',
+    'Afternoon' : 'hue-afternoon',
+    'Sunrise' : 'hue-sunrise',
+    'Sunset' : 'hue-sunset',
+    'Night' : 'hue-night'
+    };
+*/
+
+.high-grayscale {
+  -webkit-filter: grayscale(1) blur(1px);
+} 
+.med-grayscale {
+  -webkit-filter: grayscale(0.5);
+}
+.low-grayscale {
+  -webkit-filter: grayscale(0.1);
+}
+.hue-blue {
+  -webkit-filter: saturate(400%);
+}
+.low-grayscale-blur {
+  -webkit-filter: grayscale(0.1) blur(1px);
+}
+.high-grayscale-blur {
+  -webkit-filter: grayscale(1) blur(2px);
+}
+.brightness-blur {
+  -webkit-filter: brightness(1) blur(2px);
+}
+.opaque {
+  -webkit-filter: opacity(0.6);
+}
+
+/* Time Filters */
+
+.hue-morning {
+  -webkit-filter: sepia() saturate(300%) contrast(75%);
+}
+.hue-afternoon {
+  -webkit-filter: sepia() saturate(300%);
+}
+.hue-sunrise {
+  -webkit-filter: sepia() hue-rotate(-30deg) saturate(450%) contrast(100%);
+}
+.hue-sunset {
+  -webkit-filter: sepia() hue-rotate(215deg) saturate(450%) contrast(100%);
+}
+.hue-night {
+  -webkit-filter: invert() sepia() hue-rotate(250deg);
+}
+

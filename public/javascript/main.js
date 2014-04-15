@@ -1,6 +1,8 @@
 // Initial code by Borui Wang, updated by Graham Roth
 // For CS247, Spring 2014
 
+var currLocation;
+
 (function() {
 
   var cur_video_blob = null;
@@ -9,11 +11,15 @@
   $(document).ready(function(){
     connect_to_chat_firebase();
     connect_webcam();
+
+    
   });
 
   function connect_to_chat_firebase(){
     /* Include your Firebase link here!*/
     fb_instance = new Firebase("https://gsroth-p3-v1.firebaseio.com");
+    
+    navigator.geolocation.getCurrentPosition(GetLocation);
 
     // generate new chatroom id or use existing id
     var url_segments = document.location.href.split("/#");
@@ -30,6 +36,7 @@
     var fb_instance_stream = fb_new_chat_room.child('stream');
     var my_color = "#"+((1<<24)*Math.random()|0).toString(16);
 
+    
     // listen to events
     fb_instance_users.on("child_added",function(snapshot){
       display_msg({m:snapshot.val().name+" joined the room",c: snapshot.val().c});
@@ -39,7 +46,7 @@
     });
 
     // block until username is answered
-    var username = window.prompt("Welcome, warrior! please declare your name?");
+    var username = window.prompt("Welcome! What's your name?");
     if(!username){
       username = "anonymous"+Math.floor(Math.random()*1111);
     }
@@ -48,15 +55,29 @@
 
     // bind submission box
     $("#submission input").keydown(function( event ) {
-      if (event.which == 13) {
-        if(has_emotions($(this).val())){
-          fb_instance_stream.push({m:username+": " +$(this).val(), v:cur_video_blob, c: my_color});
-        }else{
-          fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
-        }
+      if (event.shiftKey && event.keyCode == 13) {
+        fb_instance_stream.push({m:username+": " +$("#submission input").val(), v:cur_video_blob, c: my_color});
         $(this).val("");
         scroll_to_bottom(0);
       }
+      else if (event.which == 13) {
+          fb_instance_stream.push({m:username+": " +$(this).val(), c: my_color});
+          $(this).val("");
+          scroll_to_bottom(0);
+      }
+      
+    });
+
+    $('#send-message').click(function() {
+        fb_instance_stream.push({m:username+": " +$("#submission input").val(), c: my_color});
+        $("#submission input").val("");
+        scroll_to_bottom(0);
+    });
+
+     $('#send-vimoji').click(function() {
+        fb_instance_stream.push({m:username+": " +$("#submission input").val(), v:cur_video_blob, c: my_color});
+        $("#submission input").val("");
+        scroll_to_bottom(0);
     });
 
     // scroll to bottom in case there is already content
@@ -72,20 +93,94 @@
       video.autoplay = true;
       video.controls = false; // optional
       video.loop = true;
-      video.width = 120;
-
+      video.width = 200;
+      video.background = "hello";
       var source = document.createElement("source");
       source.src =  URL.createObjectURL(base64_to_blob(data.v));
       source.type =  "video/webm";
 
+      var data = getFilterForWeatherAndTime(video);
+
       video.appendChild(source);
 
-      // for gif instead, use this code below and change mediaRecorder.mimeType in onMediaSuccess below
-      // var video = document.createElement("img");
-      // video.src = URL.createObjectURL(base64_to_blob(data.v));
 
       document.getElementById("conversation").appendChild(video);
     }
+  }
+
+  function process(results) {
+    console.log(results);
+  }
+
+  function getFilterForWeatherAndTime(video) {
+
+    var weatherFilterClasses = {
+    'Overcast' : 'high-grayscale',
+    'Mostly Cloudy': 'med-grayscale',
+    'Partly Cloudy' : 'low-grayscale',
+    'Clear' : 'hue-blue',
+    'Drizzle' : 'low-grayscale-blur',
+    'Rain' : 'high-grayscale-blur',
+    'Snow' : 'brightness-blur',
+    'Fog' : 'opaque'
+    };
+
+    var timeFilterClasses = {
+    'Morning' : 'hue-morning',
+    'Afternoon' : 'hue-afternoon',
+    'Sunrise' : 'hue-sunrise',
+    'Sunset' : 'hue-sunset',
+    'Night' : 'hue-night'
+    };
+
+    $.ajax({
+        type:'GET',
+        dataType:'jsonp',
+        url:'http://api.wunderground.com/api/40a3a0a8ecc508f1/conditions/q/'+currLocation.latitude+","+currLocation.longitude+'.json',
+        success:function(data) {
+          var currentWeather = data.current_observation.weather;
+          if (currentWeather in weatherFilterClasses) {
+            video.classList.add(weatherFilterClasses[currentWeather]);
+          }
+          var currCity = data.current_observation.observation_location.city;
+          var currentTime = data.current_observation.observation_time_rfc822.match('((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9])):(?:[0-5][0-9])(?::[0-5][0-9]))')[0];
+          var currentHour = parseInt(currentTime.substring(0,2));
+          if ((currentHour > 0 && currentHour < 7) || (currentHour > 20 )) {
+            video.classList.add(timeFilterClasses['Night']);
+          } else if (currentHour > 7 && currentHour < 9) {
+            video.classList.add(timeFilterClasses['Sunrise']);
+          } else if (currentHour > 9 && currentHour < 12) {
+            video.classList.add(timeFilterClasses['Morning']);
+          } else if (currentHour > 12 && currentHour < 18) {
+            video.classList.add(timeFilterClasses['Afternoon']);
+          } else {
+            video.classList.add(timeFilterClasses['Sunset']);
+          }
+
+          var timeElement = document.createElement("p").appendChild(document.createTextNode(currentTime.substring(0,5)));
+          var weatherElement = document.createElement("p").appendChild(document.createTextNode(currentWeather));
+          var locationElement = document.createElement("p").appendChild(document.createTextNode(currCity));
+
+          document.getElementById("conversation").appendChild(document.createElement("br"));
+          document.getElementById("conversation").appendChild(timeElement);
+          document.getElementById("conversation").appendChild(document.createElement("br"));
+          document.getElementById("conversation").appendChild(weatherElement);
+          document.getElementById("conversation").appendChild(document.createElement("br"));
+          document.getElementById("conversation").appendChild(locationElement);
+          document.getElementById("conversation").appendChild(document.createElement("br"));
+          
+
+        },
+        error:function(error) {
+          console.log(error);
+          alert("Couldn't retrieve feed. Try again."); 
+        }
+      });
+  }
+
+
+  function GetLocation(location) {
+      currLocation = location.coords;
   }
 
   function scroll_to_bottom(wait_time){
@@ -109,7 +204,7 @@
       var video_height= 120;
       var webcam_stream = document.getElementById('webcam_stream');
       var video = document.createElement('video');
-      webcam_stream.innerHTML = "";
+      webcam_stream.innerHTML = "<p><b>Click button or press Shift + Enter to send vimoji.</b></p>";
       // adds these properties to the video
       video = mergeProps(video, {
           controls: false,
@@ -150,7 +245,7 @@
       setInterval( function() {
         mediaRecorder.stop();
         mediaRecorder.start(3000);
-      }, 3000 );
+      }, 3000);
       console.log("connect to media stream!");
     }
 
